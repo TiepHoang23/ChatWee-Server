@@ -1,13 +1,12 @@
-const { pg_client } = require('../database');
+const { pg_client, getUserById } = require('../database');
 
 async function getMyUser(req, res) {
   try {
     const id = req.userId;
-    const user_data = await pg_client.query(
-      `SELECT * from "public.User" WHERE id = '${id}'`
-    );
-    if (user_data.rows[0]) {
-      res.json({ status: true, data: user_data.rows[0] });
+    const data = await getUserById(id);
+    console.log(data);
+    if (data) {
+      res.json({ status: true, data: data });
     } else {
       res.json({ status: false, data: null });
     }

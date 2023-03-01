@@ -14,7 +14,6 @@ function onConnection(socket) {
 chatIO.use(authenticateMiddleware);
 chatIO.on('connection', onConnection);
 
-
 module.exports = {
   io,
 };

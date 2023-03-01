@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { getBlockedToken } = require('../database/utils/redisUtils');
-
-const expireTime = 60 * 60 * 12;
+const jwt_config = require('../config/jwt');
 const secretKey = 'jwt-secret';
 
 async function parserToken(req, res, next) {
@@ -16,7 +15,7 @@ async function parserToken(req, res, next) {
       if (inBlackList) {
         req.isAuthenticated = false;
       } else {
-        const { userId } = jwt.verify(token, secretKey);
+        const { userId } = jwt.verify(token, jwt_config.secretKey);
         req.isAuthenticated = true;
         req.userId = userId;
       }

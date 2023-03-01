@@ -1,24 +1,25 @@
-const { pg_client } = require('../database');
+const {
+  checkUserInRoom,
+  getUserById,
+  pushMessageToRoom,
+} = require('../database');
 
 async function chatHandle(chatIO, socket) {
   // Check expireTime token
 
   const { userId } = socket.data.signature;
   console.log(`${userId} connected`);
-  const user = await User.findById(userId).lean();
-  const fullname = `${user.lastName} ${user.firstName}`;
+  const user = await getUserById(userId);
 
   //= =====EVENT======//
   // join room from clients
   socket.on('join-room', async (roomId) => {
+    console.log(roomId);
+
     try {
-      const queryRoom = { _id: roomId, users: userId };
-
-      const roomInstance = await Room.findOne(queryRoom, { trip: 1 })
-        .populate({ path: 'trip', select: 'status' })
-        .lean();
-
-      if (!roomInstance || roomInstance.trip.status !== 'Driving') {
+      const value = await checkUserInRoom({ userId, roomId });
+      console.log(value);
+      if (!value) {
         socket.emit('error', 'room dose not exist');
         return;
       }
@@ -26,7 +27,7 @@ async function chatHandle(chatIO, socket) {
       socket.join(roomId);
       chatIO
         .to(roomId)
-        .emit('join-room', { nameID: fullname, msg: 'joined room' });
+        .emit('join-room', { nameID: user.email, msg: 'joined room' });
       socket.data.roomId = roomId;
     } catch (e) {
       socket.emit('error', e.message);
@@ -40,12 +41,11 @@ async function chatHandle(chatIO, socket) {
 
       const { roomId } = socket.data;
       if (!roomId) {
-        socket.emit('chat-message', { nameID: fullname, msg });
+        socket.emit('chat-message', { nameID: user.email, msg });
         return;
       }
-      chatIO.to(roomId).emit('chat-message', { nameID: fullname, msg });
-      const subMsg = { message: msg, user: userId };
-      Room.updateOne({ _id: roomId }, { $push: { messages: subMsg } }).exec();
+      chatIO.to(roomId).emit('chat-message', { nameID: user.email, msg });
+      await pushMessageToRoom({ roomId, userId, message: msg });
     } catch (e) {
       socket.emit('error', e.message);
       socket.disconnect(true);
@@ -61,7 +61,7 @@ async function chatHandle(chatIO, socket) {
       return;
     }
     chatIO.to(roomId).emit('chat-message', {
-      nameID: `${user.lastName} ${user.firstName}`,
+      nameID: user.email,
       msg: 'out of room',
     });
   });

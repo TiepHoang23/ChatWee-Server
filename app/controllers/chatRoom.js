@@ -15,6 +15,21 @@ async function getMyChatRooms(req, res) {
   }
 }
 
+async function getRoomWithUser(req, res) {
+  try {
+    const id = req.userId;
+    const room_data = await pg_client.query(
+      ` SELECT rc.*
+        from "public.Room_User" ru, "public.Room_Chat" rc
+        WHERE ru."userId" = '${id}' and rc."id" =ru."roomId"
+        `
+    );
+    res.json({ status: true, data: room_data.rows });
+  } catch (error) {
+    res.json({ status: false, message: error });
+  }
+}
+
 async function getMessageFromRoom(req, res) {
   try {
     const { roomId } = req.params;
@@ -42,6 +57,7 @@ async function getMessageFromRoom(req, res) {
 
 let chatRoomController = {
   getMyChatRooms,
+  getRoomWithUser,
   getMessageFromRoom,
 };
 module.exports = chatRoomController;

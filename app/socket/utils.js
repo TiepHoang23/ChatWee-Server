@@ -1,5 +1,6 @@
 const { getBlockedToken } = require('../database/utils/redisUtils');
-
+const jwt_config = require('../config/jwt');
+const jwt = require('jsonwebtoken');
 async function verifyToken(token) {
   if (!token) return { status: false, message: 'invalidToken' };
 
@@ -10,7 +11,7 @@ async function verifyToken(token) {
     return { status: false, message: 'invalidToken' };
   }
   try {
-    const { userId } = jwt.verify(token, secretKey);
+    const { userId } = jwt.verify(token, jwt_config.secretKey);
     return { status: true, signature: { userId } };
   } catch (error) {
     return { status: false, message: 'invalidToken' };
@@ -21,8 +22,10 @@ async function authenticateMiddleware(socket, next) {
   // const chatIO = this;
   try {
     const { token } = socket.handshake.auth;
+
     const verifyResult = await verifyToken(token);
-    if (!verifyResult.isSuccess) {
+
+    if (!verifyResult.status) {
       next(new Error(verifyResult.message));
       socket.disconnect(true);
       return;
