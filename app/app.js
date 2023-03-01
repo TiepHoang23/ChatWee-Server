@@ -1,23 +1,22 @@
 let createError = require('http-errors');
 let express = require('express');
 let cookieParser = require('cookie-parser');
-const authorizate = require('./middleware/auth');
+const auth = require('./middleware/auth');
 // let redisClient = require('./database/redis');
-let { authRouter, userRouter } = require('./routes');
-let app = express();
+const { createServer } = require('http');
+let { attachRouter } = require('./routes');
+const { io } = require('./socket');
+const app = express();
+const httpServer = createServer(app);
+io.attach(httpServer);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-// Router
-
-app.use(authorizate);
-
-app.use('/api/auth', authRouter);
-app.use('/api/user', userRouter);
-
+attachRouter(app);
 // catch 404 and forward to error handler
+
 app.use(function (req, res, next) {
   res.send('404 not found');
 });
@@ -33,4 +32,4 @@ app.use(function (req, res, next) {
 //   res.render('error');
 // });
 
-module.exports = app;
+module.exports = httpServer;
