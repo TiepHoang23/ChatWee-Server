@@ -25,7 +25,7 @@ async function login(req, res) {
       expiresIn: jwtConfig.expireTime,
     });
 
-    res.json({ status: true, token: token });
+    res.json({ status: true, data: { token, userId: user_data.id, email } });
   } catch (error) {
     res.json({ status: false, message: error });
   }

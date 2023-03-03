@@ -5,8 +5,11 @@ const auth = require('./middleware/auth');
 // let redisClient = require('./database/redis');
 const { createServer } = require('http');
 let { attachRouter } = require('./routes');
+var cors = require('cors');
+
 const { io } = require('./socket');
 const app = express();
+app.use(cors());
 const httpServer = createServer(app);
 io.attach(httpServer);
 
