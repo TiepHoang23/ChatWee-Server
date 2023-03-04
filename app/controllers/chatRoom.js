@@ -17,14 +17,14 @@ async function getMyChatRooms(req, res) {
 
 async function getRoomWithUser(req, res) {
   try {
-    const id = req.userId;
+    const id = req.params.userId;
     const room_data = await pg_client.query(
       ` SELECT rc.*
         from "public.Room_User" ru, "public.Room_Chat" rc
         WHERE ru."userId" = '${id}' and rc."id" =ru."roomId"
         `
     );
-    res.json({ status: true, data: room_data.rows });
+    res.json({ status: true, data: room_data.rows[0] });
   } catch (error) {
     res.json({ status: false, message: error });
   }
