@@ -45,7 +45,7 @@ async function chatHandle(chatIO, socket) {
         socket.emit('chat-message', { nameID: user.email, msg });
         return;
       }
-      chatIO.to(roomId).emit('chat-message', { nameID: user.email, msg });
+      chatIO.to(roomId).emit('chat-message', { userId ,nameID: user.email, msg });
       console.log({ roomId, userId, message: msg });
       await pushMessageToRoom({ roomId, userId, message: msg });
     } catch (e) {
