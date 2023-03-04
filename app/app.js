@@ -11,7 +11,12 @@ const { io } = require('./socket');
 const app = express();
 app.use(cors());
 const httpServer = createServer(app);
-io.attach(httpServer);
+io.attach(httpServer, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+  },
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

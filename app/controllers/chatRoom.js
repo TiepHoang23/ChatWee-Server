@@ -33,6 +33,7 @@ async function getRoomWithUser(req, res) {
 async function getMessageFromRoom(req, res) {
   try {
     const { roomId } = req.params;
+
     const id = req.userId;
     let str_query = `SELECT * from "public.Room_User" WHERE "userId"=${id} and "roomId"=${roomId}`;
     const user_data = await pg_client.query(str_query);

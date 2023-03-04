@@ -6,6 +6,7 @@ const secretKey = 'jwt-secret';
 async function parserToken(req, res, next) {
   try {
     const token = req.headers.authorization.replace('Bearer ', '');
+    // console.log(token);
     if (!token) {
       req.isAuthenticated = false;
     } else {

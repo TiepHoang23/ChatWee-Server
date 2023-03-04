@@ -40,11 +40,13 @@ async function chatHandle(chatIO, socket) {
       // Check disable user or user is logout
 
       const { roomId } = socket.data;
+      console.log(roomId);
       if (!roomId) {
         socket.emit('chat-message', { nameID: user.email, msg });
         return;
       }
       chatIO.to(roomId).emit('chat-message', { nameID: user.email, msg });
+      console.log({ roomId, userId, message: msg });
       await pushMessageToRoom({ roomId, userId, message: msg });
     } catch (e) {
       socket.emit('error', e.message);
